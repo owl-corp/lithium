@@ -30,6 +30,16 @@ and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at <https://hexdocs.pm/lithium>.
 
 
+## Development
+
+To develop locally, you can use GNU Guix to drop you into a shell with the
+required dependencies to build and test Lithium:
+
+```sh
+$ guix shell -m manifest.scm
+```
+
+
 ## License
 
 This program is free software: you can redistribute it and/or modify it under
