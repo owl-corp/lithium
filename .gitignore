@@ -21,3 +21,6 @@ lithium-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Generated lexer code
+/src/lithium_spf_lexer.erl
