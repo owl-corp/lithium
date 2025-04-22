@@ -1,3 +1,5 @@
+![Lithium Logo](./misc/lithium.png)
+
 # Lithium
 
 Lithium is a mail authentication process implemented by Owl Corp.
