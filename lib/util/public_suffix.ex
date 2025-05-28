@@ -71,6 +71,8 @@ defmodule Lithium.Util.PublicSuffix do
   end
 
   def fetch_public_suffix_list do
+    Logger.info("Fetching public suffix list from #{@public_suffix_list_url}")
+
     request = :httpc.request(:get, {@public_suffix_list_url, []}, [], [])
 
     case request do
