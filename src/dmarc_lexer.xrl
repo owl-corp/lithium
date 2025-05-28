@@ -8,14 +8,14 @@ LOST_MAILTO = mailto
 
 Rules.
 
-{KEY}          : {token, {key, TokenLine, list_to_atom(TokenChars)}}.
-{MAILTO_EMAIL} : {token, {mailto, TokenLine, TokenChars}}.
-=              : {token, {equals, TokenLine}}.
-:              : {token, {colon, TokenLine}}.
-;              : {token, {semicolon, TokenLine}}.
-,              : {token, {comma, TokenLine}}.
-{LOST_MAILTO}  : {error, invalid_mailto}.
-{VALUE}        : {token, {string, TokenLine, TokenChars}}.
-{WHITESPACE}+  : skip_token.
+{KEY}            : {token, {key, TokenLine, list_to_atom(TokenChars)}}.
+{MAILTO_EMAIL}   : {token, {mailto, TokenLine, TokenChars}}.
+=                : {token, {equals, TokenLine}}.
+:                : {token, {colon, TokenLine}}.
+;                : {token, {semicolon, TokenLine}}.
+,                : {token, {comma, TokenLine}}.
+{LOST_MAILTO}    : {error, invalid_mailto}.
+{VALUE}          : {token, {string, TokenLine, TokenChars}}.
+{WHITESPACE}+    : skip_token.
 
 Erlang code.
