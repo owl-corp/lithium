@@ -10,7 +10,7 @@ defmodule Lithium.Util.PublicSuffix do
 
   @public_suffix_list_path Application.app_dir(:lithium, "priv/public_suffix_list.dat")
   @public_suffix_list_url "https://publicsuffix.org/list/public_suffix_list.dat"
-  @public_suffix_max_age :timer.hours(7 * 24)
+  @public_suffix_max_age div(:timer.hours(7 * 24), 1000) # 7 days in seconds
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -18,10 +18,21 @@ defmodule Lithium.Util.PublicSuffix do
 
   @impl true
   def init(:ok) do
-    if File.exists?(@public_suffix_list_path) do
+    if File.exists?(@public_suffix_list_path) and psl_fresh?() do
+      Logger.info("Loading public suffix list from disk cache.")
+      Process.send_after(self(), :update_public_suffix_list,  psl_next_refresh() - :os.system_time(:seconds))
       {:ok, load_public_suffix_list()}
     else
-      {:ok, []}
+      Logger.info("Public suffix list file not found or not fresh, fetching from remote.")
+      case fetch_public_suffix_list() do
+        {:ok, list} ->
+          Process.send_after(self(), :update_public_suffix_list, @public_suffix_max_age)
+          {:ok, list}
+
+        {:error, reason} ->
+          Logger.error("Failed to fetch public suffix list: #{reason}")
+          {:stop, reason}
+      end
     end
   end
 
@@ -29,6 +40,7 @@ defmodule Lithium.Util.PublicSuffix do
   def handle_info(:update_public_suffix_list, state) do
     case fetch_public_suffix_list() do
       {:ok, new_list} ->
+        Process.send_after(self(), :update_public_suffix_list, @public_suffix_max_age)
         {:noreply, new_list}
 
       {:error, reason} ->
@@ -39,7 +51,7 @@ defmodule Lithium.Util.PublicSuffix do
 
   @impl true
   def handle_call({:get_domain, domain}, _from, state) do
-    {:reply, find_organizational_domain(domain, state), state}
+    {:reply, get_od_for_domain(domain, state), state}
   end
 
   def load_public_suffix_list do
@@ -71,7 +83,7 @@ defmodule Lithium.Util.PublicSuffix do
     end
   end
 
-  def find_organizational_domain(domain, public_suffix_list) do
+  defp get_od_for_domain(domain, public_suffix_list) do
     # x.y.z.jb3.dev -> jb3.dev
 
     # ["com", "jb3", "example"]
@@ -100,5 +112,26 @@ defmodule Lithium.Util.PublicSuffix do
 
   def get_domain(domain) do
     GenServer.call(__MODULE__, {:get_domain, domain})
+  end
+
+  defp psl_fresh?() do
+    case File.stat(@public_suffix_list_path, time: :posix) do
+      {:ok, stat} ->
+        now = :os.system_time(:seconds)
+        stat.mtime + @public_suffix_max_age > now
+
+      {:error, _} ->
+        false
+    end
+  end
+
+  defp psl_next_refresh() do
+    case File.stat(@public_suffix_list_path, time: :posix) do
+      {:ok, stat} ->
+        stat.mtime + @public_suffix_max_age
+
+      {:error, _} ->
+        nil
+    end
   end
 end
