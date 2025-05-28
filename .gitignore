@@ -23,3 +23,8 @@ lithium-*.tar
 /tmp/
 
 priv/*.dat
+
+# Ignore generated parser and lexer files
+
+dmarc_parser.erl
+dmarc_lexer.erl
