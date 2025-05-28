@@ -85,6 +85,10 @@ defmodule Lithium.Util.PublicSuffix do
     end
   end
 
+  # XXX: Actually, doing this in a process is a silly idea because we will
+  #      process bottleneck. No reason this can't just be called directly
+  #      from the DMARC module. Note to myself to remove.
+
   defp get_od_for_domain(domain, public_suffix_list) do
     # x.y.z.jb3.dev -> jb3.dev
 
