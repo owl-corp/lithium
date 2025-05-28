@@ -1,18 +1,17 @@
 defmodule Lithium do
+  use Application
+
   @moduledoc """
-  Documentation for `Lithium`.
+  Lithium is a mail authentication daemon.
   """
 
-  @doc """
-  Hello world.
+  @impl true
+  def start(_start_type, _start_args) do
+    children = [
+      {Lithium.Util.PublicSuffix, []}
+    ]
 
-  ## Examples
-
-      iex> Lithium.hello()
-      :world
-
-  """
-  def hello do
-    :world
+    opts = [strategy: :one_for_one, name: Lithium.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 end
