@@ -26,5 +26,5 @@ priv/*.dat
 
 # Ignore generated parser and lexer files
 
-dmarc_parser.erl
-dmarc_lexer.erl
+src/dmarc_parser.erl
+src/dmarc_lexer.erl
