@@ -1,8 +1,10 @@
 defmodule Lithium.DMARC do
   require Logger
-  
+
   def get_dmarc_record(domain) do
-    with {:ok, records} <- Lithium.DNS.fetch_txt("_dmarc." <> domain) do
+    with od <- Lithium.Util.PublicSuffix.get_domain(domain),
+         {:ok, records} <- Lithium.DNS.fetch_txt("_dmarc." <> od) do
+
       filtered =
         records
         |> Enum.map(&String.trim/1)
