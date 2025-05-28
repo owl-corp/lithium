@@ -7,11 +7,16 @@ defmodule Lithium.DMARC.Parser do
   module to validate and process these values.
   """
 
+  require Logger
+
   def parse_policy(record) do
     case :dmarc_lexer.string(String.to_charlist(record)) do
       {:ok, tokens, _} ->
         case :dmarc_parser.parse(tokens) do
-          {:ok, parsed} ->
+          {:ok, %{invalid: invalid_tokens, valid: parsed}} ->
+            if Kernel.map_size(invalid_tokens) > 0 do
+              Logger.warning("DMARC record contains invalid tokens: #{inspect(invalid_tokens)}")
+            end
             {:ok, keyword_to_string_map(parsed)}
 
           {:error, reason} ->
